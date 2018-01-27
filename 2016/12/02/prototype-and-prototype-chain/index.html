@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>原型与原型链 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>原型与原型链</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2016-12-02</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/JavaScript" title="Category：JavaScript">JavaScript</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/原型/" title="Tag：原型">原型</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><blockquote>
+<p>1、对象都是由函数创建出来的</p>
+</blockquote>
+<p>例如：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> b <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> c <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>像这些 <code>Object</code> 、 <code>Function</code> 、 <code>Array</code> 都是函数。</p>
+<p>在实际工作中我们是这样写的：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> b <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> c <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre>
+<p>这两者本质上是没有任何区别的，后者只是一种快捷方式。在编程语言中，一般叫做“语法糖”。</p>
+<blockquote>
+<p>2、函数也是对象（鸡生蛋还是蛋生鸡的问题了）</p>
+</blockquote>
+<p>函数也是对象，并且有一个默认的属性<code>prototype</code>。</p>
+<p>看下图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-035c1685fcd7cec5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
+<p>我们创建了一个superType函数，可以看到 <code>superType.prototype</code> 是一个对象：</p>
+<pre class=" language-javascript"><code class="language-javascript">superType<span class="token punctuation">.</span>prototype <span class="token operator">=</span> <span class="token punctuation">{</span>
+    constructor<span class="token punctuation">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    __proto__<span class="token punctuation">:</span> Object
+<span class="token punctuation">}</span>
+</code></pre>
+<p>这个对象有两个属性，其中 <code>constructor</code> 属性指向一个函数，这个函数是 <code>superType</code> 本身。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-44f3d73f15c9d47c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
+<p>另外一个属性 <code>__proto__</code> 则指向了一个对象。</p>
+<blockquote>
+<p>3、每个函数function都有一个 <code>prototype</code>属性</p>
+</blockquote>
+<p>每个对象都有一个 <code>__proto__</code> 属性。</p>
+<p>每个对象的<code>__proto__</code> 属性都指向创建该对象的函数——的prototype。</p>
+<p>一步一步来：</p>
+<ol>
+<li><p>创建该对象的函数———可以是<code>Array</code>、<code>Object</code>、<code>Fucntion</code> 或者自定义的函数。</p>
+</li>
+<li><p>上一步函数的<code>prototype</code>。</p>
+</li>
+</ol>
+<blockquote>
+<p>4、 <code>Object.prototype</code>的<code>__proto__</code>指向<code>null</code></p>
+</blockquote>
+<p>这个对象（<code>Object.prototype</code>）的<code>__proto__</code>属性是个特例。否则的话就无休止了。</p>
+<p>结合上面几点来理解下面这张图片</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-736b5c6ab9b9c809.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

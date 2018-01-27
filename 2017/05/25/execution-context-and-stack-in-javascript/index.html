@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>JavaScript中的执行上下文和堆栈是什么？ [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>JavaScript中的执行上下文和堆栈是什么？</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-05-25</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/JavaScript" title="Category：JavaScript">JavaScript</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/执行上下文/" title="Tag：执行上下文">执行上下文</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><blockquote>
+<p>本文翻译自<a href="http://davidshariff.com/blog/what-is-the-execution-context-in-javascript/#first-article" target="_blank" rel="external">What is the Execution Context &amp; Stack in JavaScript?</a>，英语水平太烂，自己脑补着翻译完了…</p>
+</blockquote>
+<p>在这篇文章中，我将深入了解JavaScript的最基本的部分，即执行上下文。 在这篇文章的最后，你应该更清楚地了解Javascript解释器尝试做什么——为什么在声明之前可以使用一些函数（变量）以及它们的值如何确定。</p>
+<h1 id="什么是执行上下文"><a href="#什么是执行上下文" class="headerlink" title="什么是执行上下文"></a>什么是执行上下文</h1><p>当JavaScript代码运行的时候，执行代码的环境非常重要，通常是以下几个之一：</p>
+<ul>
+<li><p><strong>Global code</strong>(全局代码) – 您的代码首次执行的默认环境（浏览器中指<code>window</code>）。</p>
+</li>
+<li><p><strong>Function code</strong>(函数体内代码) – 执行到函数体内部。</p>
+</li>
+<li><p><strong>Eval code</strong>(<code>eval()</code>内代码) – 通过<code>eval</code>函数执行的文本。</p>
+</li>
+</ul>
+<p>你可以在网上找到很多关于<code>scope</code>的资料，为了使本文更容易理解，我们把<code>execution context</code>视为当前代码执行时的环境（作用域）。说这么多，我们现在来看一个包含全局和局部（<code>function</code>内部）上下文的代码。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-655b2f0180faa2e3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>如上，我们有一个<strong>全局上下文</strong><code>global context</code>，用紫色线框标记出来了。并且有三个不同的<strong>函数上下文</strong><code>function contexts</code>（也指局部上下文），也用三种颜色线框标记出来了。</p>
+<blockquote>
+<p>注意：只能有1个全局上下文，可以从程序的其他任何上下文访问到。</p>
+</blockquote>
+<p>你可以利用<code>function</code>创建任意个<code>function context</code>，这些函数上下文都有自己的私有作用域，在它内部声明的变量和函数都不能直接在外部访问。比如上面的例子，函数内部可以访问它所在上下文的变量和函数（<code>firstName</code>函数可以访问到变量<code>first</code>，<code>lastName</code>函数可以访问到<code>last</code>，但是在<code>person</code>这个函数的上下文中则不能访问<code>firstName</code>或者<code>lastName</code>函数内部定义的变量）。为什么会这样的？代码内部是如何运行的呢？</p>
+<h1 id="执行上下文堆栈"><a href="#执行上下文堆栈" class="headerlink" title="执行上下文堆栈"></a>执行上下文堆栈</h1><p>浏览器中的JavaScript解释器被实现为单个线程。 这实际上意味着在浏览器中一次只能发生一件事情，其他的动作或事件会被排斥在所谓的执行堆栈中。 下图是单线程栈的抽象视图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-566ea49b63ed270a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>我们已经知道，当浏览器首先加载脚本时，默认情况下它将先进入全局执行上下文。 如果在您的全局代码中调用函数，程序的序列流将进入被调用的函数，创建一个新的执行上下文并将该上下文推送到执行堆栈的顶部。</p>
+<p>如果在这个当前函数内部调用另一个函数，那么同样的事情就会发生。代码的执行流程进入内部函数，它创建一个新的<code>execution context</code>（执行上下文），被推到现有堆栈的顶部。</p>
+<p>浏览器将始终执行位于堆栈顶部的当前<code>execution context</code>，一旦函数完成执行当前<code>execution context</code>，它将从堆栈顶部弹出，将控制权交给下一个<code>execution context</code>。 下面的例子显示了递归函数和程序的<code>execution stack</code>（执行堆栈）：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token function">foo</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">===</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token function">foo</span><span class="token punctuation">(</span><span class="token operator">++</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>这段代码简单地调用自身3次，每次将<code>i</code>的值增加1。每次调用函数<code>foo</code>时，都会创建一个新的执行上下文。一旦上下文执行完毕，它会弹出堆栈，将控制权交给下面的上下文，直到再次达到全局上下文。</p>
+<p><img src="http://i1.piimg.com/588926/3b50f53d741e6aa1.gif" alt="image.png"></p>
+<p><strong>记住<code>execution stack</code>的五个关键点：</strong></p>
+<ul>
+<li>单线程</li>
+<li>同步执行</li>
+<li>一个全局上下文</li>
+<li>无限个函数上下文</li>
+<li>每个函数调用创建一个新的执行上下文，包括调用自己</li>
+</ul>
+<h1 id="执行上下文的细节"><a href="#执行上下文的细节" class="headerlink" title="执行上下文的细节"></a>执行上下文的细节</h1><p>现在我们知道每当函数调用时，都会创建一个新的<code>execution context</code>，然而，在JavaScript解释器中，对<code>execution context</code>的调用都有两个阶段：</p>
+<ol>
+<li><strong>Creation Stage</strong> – (函数被调用时的初始化工作)<ul>
+<li>创建作用域链<a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" target="_blank" rel="external">Scope Chain</a>.</li>
+<li>创建变量、函数、参数。</li>
+<li>确定<code>this</code>的值。</li>
+</ul>
+</li>
+<li><strong>Activation / Code Execution Stage</strong> –（激活/代码执行阶段）<ul>
+<li>为变量赋值，引用函数、解释/执行代码。</li>
+</ul>
+</li>
+</ol>
+<h1 id="Activation-Variable-Object-AO-VO-变量对象"><a href="#Activation-Variable-Object-AO-VO-变量对象" class="headerlink" title="Activation / Variable Object [AO/VO] (变量对象)"></a>Activation / Variable Object [AO/VO] (变量对象)</h1><p>这个<code>executionContextObj</code>是在函数被调用时创建的，但是是在实际功能代码执行之前。也就是上面所说的<strong>Creation Stage</strong>。解释器通过扫描函数传入的参数、局部函数声明和局部变量声明来创建一个执行上下文对象<code>executionContextObj</code>。扫描的结果将成为<code>executionContextObj</code>中的<code>variableObject</code>。</p>
+<p><strong>以下是解释器执行代码时的内心独白：</strong></p>
+<ol>
+<li>我要找到一些代码，来执行一个函数</li>
+<li>在执行<code>function</code>里面的代码之前，我要创建一个它的<code>execution context</code>(执行上下文)</li>
+<li><p>先做<strong>Creation Stage</strong>(初始化工作)</p>
+<ul>
+<li>初始化<code>Scope Chain</code> <a href="http://davidshariff.com/blog/javascript-scope-chain-and-closures/" target="_blank" rel="external">作用域链</a></li>
+<li>创建<code>variableObject</code><ul>
+<li>创建<code>arguments object</code>，检查参数的上下文，初始化名称和值并创建引用副本。</li>
+<li>扫描函数声明的上下文：<ul>
+<li>对于找到的每个函数，在<code>variableObject</code>中创建一个属性，该属性是确切的函数名，它具有指向内存函数的引用指针。</li>
+<li>如果函数名已经存在，引用指针值将被覆盖。</li>
+</ul>
+</li>
+<li>扫描变量声明的上下文：<ul>
+<li>对于找到的每个变量声明，在<code>variableObject</code>中创建一个变量名称的属性，并将该值初始化为<code>undefined</code>。(<strong>划重点</strong>)</li>
+<li>如果变量名称已经存在于<code>variableObject</code>中，则不做任何操作并继续扫描。(<strong>划重点</strong>)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>确定<code>this</code>的值</li>
+</ul>
+</li>
+<li><p>再做 <strong>Activation / Code Execution Stage</strong>（代码执行）</p>
+<ul>
+<li>在上下文中运行/解释功能代码，并在代码逐行执行时分配变量值。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>让我们来看一下个例子：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">foo</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token keyword">var</span> b <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token function">privateB</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">function</span> <span class="token function">c</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token function">foo</span><span class="token punctuation">(</span><span class="token number">22</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>当调用<code>foo(22)</code>时，<code>Creation Stage</code>看起来就像下面这样：</p>
+<pre class=" language-javascript"><code class="language-javascript">fooExecutionContext <span class="token operator">=</span> <span class="token punctuation">{</span>
+    scopeChain<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token operator">...</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    variableObject<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        arguments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+            <span class="token number">0</span><span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+            length<span class="token punctuation">:</span> <span class="token number">1</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        i<span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+        c<span class="token punctuation">:</span> pointer to <span class="token keyword">function</span> <span class="token function">c</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        a<span class="token punctuation">:</span> undefined<span class="token punctuation">,</span>
+        b<span class="token punctuation">:</span> undefined
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token keyword">this</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token operator">...</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>您可以看到，<code>Creation Stage</code>定义属性的名称，而不是为其指定值，但形式参数/参数除外。</p>
+<p><code>Creation Stage</code>完成后，会来到<code>Activation / Code Execution Stage</code>，<code>Activation / Code Execution Stage</code>完成执行后，<code>executionContextObj</code>看起来像下面这样：</p>
+<pre class=" language-javascript"><code class="language-javascript">fooExecutionContext <span class="token operator">=</span> <span class="token punctuation">{</span>
+    scopeChain<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token operator">...</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    variableObject<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        arguments<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+            <span class="token number">0</span><span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+            length<span class="token punctuation">:</span> <span class="token number">1</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        i<span class="token punctuation">:</span> <span class="token number">22</span><span class="token punctuation">,</span>
+        c<span class="token punctuation">:</span> pointer to <span class="token keyword">function</span> <span class="token function">c</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        a<span class="token punctuation">:</span> <span class="token string">'hello'</span><span class="token punctuation">,</span>
+        b<span class="token punctuation">:</span> pointer to <span class="token keyword">function</span> <span class="token function">privateB</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token keyword">this</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token operator">...</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h1 id="变量提升（hosting）"><a href="#变量提升（hosting）" class="headerlink" title="变量提升（hosting）"></a>变量提升（hosting）</h1><p>你会在网上看到许多关于Javascript<code>hosting</code>的定义，解释变量和函数声明会被提升到其函数范围的顶部。然而没有人详细解释为什么变量和函数声明会被提升。当你读懂了解释器执行代码时的内心独白时，你会了解这些的。</p>
+<p>让我们看下面这个例子：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token function">​</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token keyword">typeof</span> foo<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// function pointer</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token keyword">typeof</span> bar<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// undefined</span>
+
+    <span class="token keyword">var</span> foo <span class="token operator">=</span> <span class="token string">'hello'</span><span class="token punctuation">,</span>
+        bar <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token string">'world'</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">function</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">'hello'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>​
+</code></pre>
+<p>我们可以回答下面这些问题：</p>
+<ul>
+<li><strong>为什么可以在<code>foo</code>声明之前访问它?</strong><ul>
+<li>按照<code>Creation Stage</code>,我们知道变量在代码真正执行(<code>Activation / Code Execution Stage</code>)之前就已经创建。</li>
+</ul>
+</li>
+<li><strong><code>foo</code>被声明两次，为什么打印出来的是<code>function</code>而不是<code>undefined</code>或者<code>String</code>?</strong><ul>
+<li>尽管<code>foo</code>被声明了两次，我们从<code>Creation Stage</code>这一步知道，扫描函数声明是在扫描变量声明之前，并且后续如果扫描到重名的变量声明，则不做任何操作。</li>
+</ul>
+</li>
+<li><strong>为什么<code>bar</code>是<code>undefined</code>?</strong><ul>
+<li><code>bar</code>实际上是一个变量，等号的右边是一个函数表达式。变量在<code>Creation Stage</code>这一步会被初始化为<code>undefined</code>。</li>
+</ul>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>希望现在您能很好地掌握JavaScript解释器如何评估您的代码。 了解执行上下文和堆栈可以让您知道为什么您的代码给出了与你预期不一致的结果。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

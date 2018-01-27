@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>常用git命令备忘 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>常用git命令备忘</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-11-24</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/杂" title="Category：杂">杂</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/git/" title="Tag：git">git</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p>最近公司全部上git了，这里记录一下经常用到的命令备忘。</p>
+<h2 id="远程已有仓库"><a href="#远程已有仓库" class="headerlink" title="远程已有仓库"></a>远程已有仓库</h2><p>首先从远程仓库下载已有的代码</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">git</span> clone http://path/to/repository.git
+<span class="token comment" spellcheck="true"># 或者</span>
+<span class="token function">git</span> clone username@paht/to/repository.git
+</code></pre>
+<p>进入下载好的仓库文件夹，使用<code>git remote</code>命令，可以看到本地自动为你添加了相应的远程仓库，并且它的名字叫<code>origin</code>。</p>
+<p>在本地修改代码后<code>commit</code>后，初次向远程仓库提交数据需要使用下面这行命令：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">git</span> push -u origin master:master
+</code></pre>
+<p>解释一下命令的意思：</p>
+<ul>
+<li><p><code>-u</code> 完整的写法是<code>-set-upstream</code>，也就是将本地仓库的分支与远程仓库的分支建立追踪联系</p>
+</li>
+<li><p><code>origin</code> 表示的是远程仓库的名字</p>
+</li>
+<li><p><code>master:master</code> 前一个<code>master</code>表示的是本地的<code>master</code>分支，后一个<code>master</code>表示的是远程仓库的<code>master</code>分支</p>
+</li>
+</ul>
+<p>所以这行命令翻译成大白话就是：</p>
+<blockquote>
+<p>hey，git老兄，请帮我将本地仓库的<code>master</code>分支与一个名叫<code>origin</code>远程仓库的<code>master</code>分支建立追踪关系吧，然后再把本地的一些新数据更新到远程上去。</p>
+</blockquote>
+<p>Tips:</p>
+<ul>
+<li><p><code>-u</code> 只需要在初次提交数据时添加，以后可直接使用<code>git push origin master:master</code></p>
+</li>
+<li><p>如果本地仓库分支与要提交到的远程仓库分支同名，则可以简写为<code>git push origin master</code></p>
+</li>
+<li><p><code>git push</code> 有一些默认行为，这也就是为什么可以再将上面的命令直接简写为<code>git push</code> 便可以向远程提交数据的原因。关于它的行为，可以参考<a href="https://segmentfault.com/a/1190000002783245" target="_blank" rel="external">这里</a></p>
+</li>
+</ul>
+<h2 id="本地已有仓库"><a href="#本地已有仓库" class="headerlink" title="本地已有仓库"></a>本地已有仓库</h2><p>本地已有代码仓库的话，需要在远程建立一个新的空仓库，仓库建好之后，一般会提示这么一段话：</p>
+<blockquote>
+<h2 id="从命令行推送已经创建的仓库"><a href="#从命令行推送已经创建的仓库" class="headerlink" title="从命令行推送已经创建的仓库"></a>从命令行推送已经创建的仓库</h2><pre class=" language-bash"><code class="language-bash">  <span class="token function">git</span> remote add origin root@git.heifun.cn:kkk/test2.git
+  <span class="token function">git</span> push -u origin master
+</code></pre>
+</blockquote>
+<p>这两句话的意思就是：</p>
+<blockquote>
+<p>添加一个地址为<code>root@git.heifun.cn:kkk/test2.git</code>远程仓库，并把它命名为<code>origin</code>，然后将这个名叫<code>origin</code>的远程仓库的<code>master</code>分支与本地仓库的<code>master</code>分支建立追踪关系，并将本地<code>master</code>分支上的数据推送到远程<code>master</code>分支上。</p>
+</blockquote>
+<p>直接照做即可。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

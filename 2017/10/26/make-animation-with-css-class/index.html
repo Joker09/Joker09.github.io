@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>如何做出网页上的小动画 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>如何做出网页上的小动画</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-10-26</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/CSS" title="Category：CSS">CSS</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/animation/" title="Tag：animation">animation</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p>网页上经常会有一些小动画出现，有时候我看到这些动画都不知道从何下手去做出这些动画，现在我准备写一篇做这些动画的一个【套路】文章。</p>
+<p>本文会不定期更新(本文最后更新于 2017 年 10 月 27)。</p>
+<h2 id="点击动画"><a href="#点击动画" class="headerlink" title="点击动画"></a>点击动画</h2><p>大家可以看到本网站移动端有个 MENU 展开时的动画。那么如何实现呢？</p>
+<p>MENU 菜单有一个从右上角逐渐展开的动画。先设置 MENU 隐藏时的状态</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector"><span class="token id">#headerNav</span> </span><span class="token punctuation">{</span>
+  <span class="token property">transform</span><span class="token punctuation">:</span> <span class="token function">scale</span><span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token property">transform-origin</span><span class="token punctuation">:</span> <span class="token number">100%</span> <span class="token number">0%</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">/*使其在右上角*/</span>
+  <span class="token property">opacity</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token property">transition</span><span class="token punctuation">:</span> <span class="token number">0.2</span>s <span class="token function">cubic-bezier</span><span class="token punctuation">(</span><span class="token number">0.5</span>, <span class="token number">0.1</span>, <span class="token number">0.51</span>, <span class="token number">1.38</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token property">visibility</span><span class="token punctuation">:</span> hidden<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>设置展开时的状态</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector"><span class="token id">#headerNav</span><span class="token class">.open</span> </span><span class="token punctuation">{</span>
+  <span class="token property">transform</span><span class="token punctuation">:</span> <span class="token function">scale</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">/*复原*/</span>
+  <span class="token property">opacity</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token property">visibility</span><span class="token punctuation">:</span> visible<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>接下来就是<code>toggleClass(&#39;open&#39;)</code>的操作了。</p>
+<h2 id="浮层显隐动画"><a href="#浮层显隐动画" class="headerlink" title="浮层显隐动画"></a>浮层显隐动画</h2><p>最终的效果如下</p>
+<iframe scrolling="no" width="100%" height="500" src="http://jsfiddle.net/kkkisme/e0j7hpy3/embedded/js,html,css,result/light" frameborder="0" allowfullscreen></iframe>
+<p>这个问题我试了很久，因为在隐藏浮层时要是使用到<code>display:none;</code>，但是这个属性会破坏 transition 动画，也就是说如果浮层是使用了这个属性来控制显示与隐藏，那么渐进显隐的效果似乎很难达到。</p>
+<p>那么还有一个控制元素显隐的属性<code>visibility</code>是否可以使用呢？ 可以！</p>
+<p>CSS Animations 或者 CSS Transitions 支持的所有属性可以查看<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties" target="_blank" rel="external">这里</a></p>
+<p>也可以使用 tansitionend 的事件配合<code>display</code>来使用</p>
+<p>关于底部内容框的动画，当然可以使用<code>height</code>来控制，但比较推荐的做法是使用 tanslate3d 来实现，因为这样可以开启硬件加速，使得安卓手机的动画效果也很流畅。</p>
+<blockquote>
+<p>参考文章：</p>
+<ol>
+<li><p><a href="http://blog.csdn.net/deeplies/article/details/76696579" target="_blank" rel="external">元素显示与隐藏时的 transition 动画效果原生与框架实现 - CSDN 博客</a></p>
+</li>
+<li><p><a href="http://www.zhangxinxu.com/wordpress/2013/05/transition-visibility-show-hide/" target="_blank" rel="external">小 tip: transition 与 visibility</a></p>
+</li>
+</ol>
+</blockquote>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

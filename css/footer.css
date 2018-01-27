@@ -1,0 +1,44 @@
+footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  background-color: #2b2b3c;
+  box-shadow: 0 -2px 4px 1px rgba(0,0,0,0.5);
+  color: #bbb;
+}
+footer .wrapper {
+  width: 1140px;
+  margin: 0 auto;
+  padding: 15px 0;
+  text-align: center;
+  font-size: 14px;
+}
+@media screen and (max-width: 770px) {
+  footer .wrapper {
+    width: 90%;
+  }
+}
+footer .wrapper p {
+  margin: 0;
+  line-height: 1.6;
+}
+footer .wrapper .description {
+  display: inline-block;
+}
+footer .wrapper .contact {
+  display: inline-block;
+}
+footer .wrapper .contact a {
+  color: #ccc;
+  transition: 0.3s ease;
+}
+footer .wrapper .contact a span {
+  margin: 0 5px;
+  font-size: 20px;
+}
+footer .wrapper .power a {
+  color: #8f90c5;
+  transition: 0.3s ease;
+}

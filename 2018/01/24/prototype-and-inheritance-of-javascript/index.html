@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>JavaScript中的原型链和继承 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>JavaScript中的原型链和继承</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2018-01-24</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/JavaScript" title="Category：JavaScript">JavaScript</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/继承/" title="Tag：继承">继承</a><a href="/tags/原型链/" title="Tag：原型链">原型链</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><!-- Javascript 是利用原型链来实现继承的。 -->
+<h2 id="理解原型链"><a href="#理解原型链" class="headerlink" title="理解原型链"></a>理解原型链</h2><blockquote>
+<p>在 JavaScript 的世界中，函数是一等公民。</p>
+</blockquote>
+<p>上面这句话在很多地方都看到过。用我自己的话来理解就是：<strong>函数既当爹又当妈</strong>。“当爹”是因为我们用函数去处理各种“粗活累活”（各种工具函数、页面交互、业务逻辑等）；“当妈”是因为函数还会“生孩子”（创建对象）。</p>
+<p>在 JavaScript 的世界中，每一个对象都有一个隐藏的<code>__proto__</code>属性。这个属性指向生成这个对象的构造函数的原型(<code>prototype</code>)。<em>事实上，所有函数都有一个原型</em>。考虑如下例子：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">Human</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token keyword">var</span> h1 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Human</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">var</span> h2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Human</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true">// h1和h2都是是由Human函数创建出来的对象（称为Human的实例对象），所以：</span>
+h1<span class="token punctuation">.</span>__proto__ <span class="token operator">=</span> Human<span class="token punctuation">.</span>prototype
+h2<span class="token punctuation">.</span>__proto__ <span class="token operator">=</span> Human<span class="token punctuation">.</span>prototype
+
+<span class="token comment" spellcheck="true">// Human.prototype是一个对象（且称为原型对象吧），因此可以给它添加一些属性或者方法，比如：</span>
+Human<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>legs <span class="token operator">=</span> <span class="token number">2</span>
+Human<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>sleep <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'sleeping....'</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>这边又规定了：</p>
+<blockquote>
+<p>所有实例对象都可以访问到相应原型对象里面的属性和方法。（理解原型链的关键）</p>
+</blockquote>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token comment" spellcheck="true">// 不难得出结论：</span>
+h1<span class="token punctuation">.</span>legs <span class="token operator">===</span> <span class="token number">2</span> <span class="token comment" spellcheck="true">// true</span>
+h2<span class="token punctuation">.</span>legs <span class="token operator">===</span> <span class="token number">2</span> <span class="token comment" spellcheck="true">// true</span>
+
+h1<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// sleeping....</span>
+h2<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// sleeping....</span>
+</code></pre>
+<p>不要问我为什么能访问，我也不知道，因为下面这个人就是这么规定的。</p>
+<p><img src="http://oubmzdsl3.bkt.clouddn.com/bg2011060503.jpg" title="Brendan Eich" alt="Brendan Eich"></p>
+<h2 id="实现继承"><a href="#实现继承" class="headerlink" title="实现继承"></a>实现继承</h2><p>再看另外一个构造函数：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">Coder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// 如果在这里把Human的原型赋给Coder的原型</span>
+Coder<span class="token punctuation">.</span>prototype <span class="token operator">=</span> Human<span class="token punctuation">.</span>prototype
+
+<span class="token comment" spellcheck="true">// 接着再添加一些Coder自己的原型方法和属性</span>
+Coder<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>age <span class="token operator">=</span> <span class="token number">24</span>
+Coder<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>work <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'write code'</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// 新建一个Coder对象</span>
+<span class="token keyword">var</span> c1 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Coder</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment" spellcheck="true">// 不难得出</span>
+c1<span class="token punctuation">.</span>age <span class="token operator">===</span> Coder<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>age <span class="token comment" spellcheck="true">// true 24</span>
+c1<span class="token punctuation">.</span>work <span class="token operator">===</span> Code<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>work <span class="token comment" spellcheck="true">// true</span>
+
+c1<span class="token punctuation">.</span>legs <span class="token operator">===</span> Human<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>legs <span class="token comment" spellcheck="true">// true 2</span>
+c1<span class="token punctuation">.</span>sleep <span class="token operator">===</span> Human<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>sleep <span class="token comment" spellcheck="true">// true</span>
+</code></pre>
+<iframe scrolling="no" width="100%" height="300" src="http://jsfiddle.net/kkkisme/asp3auyo/3/embedded/js,result/dark" frameborder="0" allowfullscreen></iframe>
+<p>虽然把 Human 的原型直接赋给 Coder 的原型可以让 Coder 的实例访问到 Human 原型上的属性和方法，但是如果想单独修改 Coder 原型的话会影响到 Human 原型上的值，这显然不是我们所期望的。</p>
+<pre class=" language-javascript"><code class="language-javascript">Coder<span class="token punctuation">.</span>prototype<span class="token punctuation">.</span>sleep <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'still write code....'</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">// 修改了Coder的原型，但同时也会影响Human的原型</span>
+<span class="token comment" spellcheck="true">// 因此需要修改Coder.prototype的指向从而避免这个问题</span>
+Coder<span class="token punctuation">.</span>prototype <span class="token operator">=</span> h1 <span class="token comment" spellcheck="true">// h1是Human的一个实例</span>
+</code></pre>
+<p>所以应该这样写：</p>
+<pre class=" language-javascript"><code class="language-javascript">Coder<span class="token punctuation">.</span>prototype <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Human</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">// 或者</span>
+Coder<span class="token punctuation">.</span>prototype <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>Human<span class="token punctuation">.</span>prototype<span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">// 实际上这两种写法还是有一定的区别</span>
+</code></pre>
+<p>从而实现了 JavaScript 最简单的原型链式继承。</p>
+<p>不过这么写还是会有以下两个缺陷：</p>
+<ul>
+<li><p>父类构造函数中的引用类型的属性（方法）是所有子类实例共享的，所以会出现改动一个实例的属性（或方法）会影响所有实例的属性（或方法）。</p>
+</li>
+<li><p>创建子类实例时，无法向父类构造函数传参。</p>
+</li>
+</ul>
+<p>所以需要在子类构造函数内调用一下父类构造函数，并把子类的<code>this</code>绑定上去：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">Coder</span><span class="token punctuation">(</span>arg<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  Human<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> arg<span class="token punctuation">)</span>
+  <span class="token comment" spellcheck="true">// 接着再写自身的属性（方法）</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>这就相当于把父类构造函数在子类构造函数中重写了一遍，也就不会出现【引用】问题了。上面就是构造函数继承。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.ayqy.net/blog/%E9%87%8D%E6%96%B0%E7%90%86%E8%A7%A3js%E7%9A%846%E7%A7%8D%E7%BB%A7%E6%89%BF%E6%96%B9%E5%BC%8F/" target="_blank" rel="external">重新理解 JS 的 6 种继承方式</a></p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

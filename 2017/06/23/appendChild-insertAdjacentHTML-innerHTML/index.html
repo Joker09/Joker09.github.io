@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>appendChild、insertAdjacentHTML和innerHTML的区别 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>appendChild、insertAdjacentHTML和innerHTML的区别</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-06-23</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/JavaScript" title="Category：JavaScript">JavaScript</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/appendChild/" title="Tag：appendChild">appendChild</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p><code>appendChild</code>、<code>insertAdjacentHTML</code>和<code>innerHTML</code>这三者的功能很相似，都可以在父元素内部的结尾添加子元素，那么我们该如何在不同的场景下使用它们呢？它们的执行速度孰优孰劣呢？</p>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><ul>
+<li><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/innerHTML" target="_blank" rel="external"><code>innerHTML</code></a></p>
+<p><strong>From MDN</strong></p>
+<blockquote>
+<p><em>innerHTML sets or gets the HTML syntax describing the element’s descendants.</em></p>
+</blockquote>
+<p><code>Element.innerHTML</code> 属性设置或获取描述元素后代的HTML语法。</p>
+<p>也就是说，当你为元素的 <code>innerHTML</code> 重新赋值的时候，它会为原来的元素重新生成新的子节点。特别是当进行循环遍历的时候，这样的做法不是很好。</p>
+</li>
+<li><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Node/appendChild" target="_blank" rel="external"><code>appendChild</code></a></p>
+<p><strong>From MDN</strong></p>
+<blockquote>
+<p><em>Adds a node to the end of the list of children of a specified parent node. If the node already exists it is removed from current parent node, then added to new parent node.</em></p>
+</blockquote>
+<p><code>Node.appendChild()</code> 方法将一个节点添加到指定父节点的子节点列表末尾。</p>
+<p>所有浏览器都支持此方法，并且是将节点、文本、数据等插入到DOM中的一种更为清晰的方式。</p>
+</li>
+<li><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Element/insertAdjacentHTML" target="_blank" rel="external"><code>insertAdjacentHTML</code></a></p>
+<p><strong>From MDN</strong></p>
+<blockquote>
+<p><em>parses the specified text as HTML or XML and inserts the resulting nodes into the DOM tree at a specified position. [ … ]</em></p>
+</blockquote>
+<p><code>insertAdjacentHTML</code> 方法需要传入两个参数，第一个参数是相对于元素的位置，第二个是需要解析的字符串。但是它不会重新解析它正在使用的元素，因此它不会破坏元素内的现有元素。这避免了额外的序列化步骤，使其比直接innerHTML操作更快。</p>
+<p>如同 <code>innerHTML</code> 和 <code>innerText</code> 一样，同样也存在着 <code>insertAdjacentText</code> 方法。</p>
+<p>所有浏览器都支持此方法。</p>
+</li>
+</ul>
+<h2 id="避免元素的重新渲染"><a href="#避免元素的重新渲染" class="headerlink" title="避免元素的重新渲染"></a>避免元素的重新渲染</h2><p>当你使用 <code>element.innerHTML += &quot;markup&quot;</code> 来渲染元素时，浏览器做了以下几件事情：</p>
+<ol>
+<li>通过序列化 <code>element</code> 的后代来获取 <code>innerHTML</code> 的值。</li>
+<li>加上 <code>+=</code> 右侧的字符串成为一个新的字符串。</li>
+<li>删除 <code>element</code> 的所有子元素。</li>
+<li>解析新字符串，重新生成DOM节点，重新渲染元素。</li>
+</ol>
+<p>而通过 <code>element.insertAdjacentHTML(&#39;beforeend&#39;, html)</code> 向父元素内部的末尾追加内容则不会重新渲染整个 <code>element</code>。 </p>
+<p>因此，当你在使用 <code>innerHTML</code> 时候，不妨现在试试 <code>insertAdjacentHTML</code>。</p>
+<h2 id="速度对比"><a href="#速度对比" class="headerlink" title="速度对比"></a>速度对比</h2><ul>
+<li><a href="https://jsperf.com/insertadjacenthtml-vs-innerhtml-vs-appendchild" target="_blank" rel="external">insertAdjacentHTML vs innerHTML vs appendChild</a></li>
+</ul>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

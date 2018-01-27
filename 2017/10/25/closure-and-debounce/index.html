@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>闭包与函数防抖 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>闭包与函数防抖</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-10-25</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/JavaScript" title="Category：JavaScript">JavaScript</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/闭包/" title="Tag：闭包">闭包</a><a href="/tags/函数防抖/" title="Tag：函数防抖">函数防抖</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p><strong>函数节流</strong>(throttle)和<strong>函数防抖</strong>(debounce)的目的都是为了限制函数的执行次数，很多小伙伴容易把这二者弄混淆。简单点来说，函数节流是当函数连续调用时，只有间隔指定时间的调用才算数，其他调用忽略。函数防抖是当函数连续调用时，只有最后一次调用才算数，也就是说只要你不停地调用这个函数，并且调用间隔时间小于指定的时间，那么函数将永远不会被调用。</p>
+<p>本文主要分析<strong>函数防抖</strong>的实现方式及用法。</p>
+<h2 id="简单实现"><a href="#简单实现" class="headerlink" title="简单实现"></a>简单实现</h2><pre class=" language-javascript"><code class="language-javascript"><span class="token comment" spellcheck="true">// debounce函数</span>
+<span class="token keyword">function</span> <span class="token function">debounce</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> context<span class="token punctuation">,</span> delay<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token function">clearTimeOut</span><span class="token punctuation">(</span>fn<span class="token punctuation">.</span>timer<span class="token punctuation">)</span>
+  fn<span class="token punctuation">.</span>timer <span class="token operator">=</span> <span class="token function">setTimeOut</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    fn<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>context<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> delay<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="一般用法"><a href="#一般用法" class="headerlink" title="一般用法"></a>一般用法</h2><p><code>debounce</code> 常用于页面 <code>resize</code>、<code>scroll</code> 等事件。下面是一个简单的示例：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token comment" spellcheck="true">// 事件处理函数 (需要被多次的调用的函数)</span>
+<span class="token keyword">function</span> <span class="token function">handler</span><span class="token punctuation">(</span><span class="token operator">...</span>args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token operator">...</span>args<span class="token punctuation">)</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'debounce'</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// trigger</span>
+document<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'scroll'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token operator">=</span><span class="token operator">></span><span class="token punctuation">{</span>
+  <span class="token function">debounce</span><span class="token punctuation">(</span>handler<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token number">1000</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// 在这里可以把事件对象传入，那么如何让handler接收这个参数呢？</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>为了让<code>handler</code>接收参数，可以稍微修改下<code>debounce</code>:</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token comment" spellcheck="true">// 修改后的debounce函数</span>
+<span class="token keyword">function</span> <span class="token function">debounce</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> context<span class="token punctuation">,</span> delay<span class="token punctuation">,</span> <span class="token operator">...</span>args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token function">clearTimeOut</span><span class="token punctuation">(</span>fn<span class="token punctuation">.</span>timer<span class="token punctuation">)</span>
+  fn<span class="token punctuation">.</span>timer <span class="token operator">=</span> <span class="token function">setTimeOut</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    fn<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>context<span class="token punctuation">,</span> <span class="token operator">...</span>args<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> delay<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>这种方式实现的<code>debounce</code>函数简单易懂，但不优雅，比如给<code>handler</code>函数增加一个<code>timer</code>属性，而且传参的方式也不美观。</p>
+<h2 id="闭包与变量"><a href="#闭包与变量" class="headerlink" title="闭包与变量"></a>闭包与变量</h2><blockquote>
+<p>闭包能取得包含函数中任何变量的最后一个值。</p>
+</blockquote>
+<p>下面是一个简单的闭包的例子：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span>
+  <span class="token keyword">return</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    i<span class="token operator">++</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> counter <span class="token operator">=</span> <span class="token function">foo</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token function">counter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<p>在全局任何一个地方调用 <code>counter</code> 都能使 <code>i</code> 增加1了， 并且在外部任何地方都无法通过其他方法修改 <code>i</code> 的值。</p>
+<h2 id="使用闭包特性实现函数防抖"><a href="#使用闭包特性实现函数防抖" class="headerlink" title="使用闭包特性实现函数防抖"></a>使用闭包特性实现函数防抖</h2><p>根据闭包的特性，我们可以将timer设置为包含函数的局部变量：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">debounce</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> delay<span class="token punctuation">)</span><span class="token punctuation">{</span>
+  <span class="token keyword">let</span> timer <span class="token operator">=</span> <span class="token keyword">null</span> <span class="token comment" spellcheck="true">// 一个局部变量timer</span>
+  <span class="token keyword">return</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment" spellcheck="true">// 这里返回了一个闭包， 闭包里面可以修改timer</span>
+    <span class="token keyword">let</span> context <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">,</span> args <span class="token operator">=</span> arguments
+    <span class="token function">clearTimeout</span><span class="token punctuation">(</span>timer<span class="token punctuation">)</span>
+    timer <span class="token operator">=</span> <span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        fn<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>context<span class="token punctuation">,</span> <span class="token operator">...</span>args<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span> delay<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>调用的时候：</p>
+<pre class=" language-javascript"><code class="language-javascript"> document<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'scroll'</span><span class="token punctuation">,</span><span class="token function">debounce</span><span class="token punctuation">(</span>handler <span class="token punctuation">,</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<p>这种方式既没有给<code>handler</code>添加多余的属性，也不用显示的传参。可以说是简单优雅的函数了。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

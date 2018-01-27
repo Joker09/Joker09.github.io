@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>如何实现浮动元素水平垂直居中 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>如何实现浮动元素水平垂直居中</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2016-11-22</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/CSS" title="Category：CSS">CSS</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/居中/" title="Tag：居中">居中</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p>根据题目要求，应该是实现如下效果：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-ef5faf96ebf5bf21.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="理想效果图" title="理想效果图"><a id="more"></a></p>
+<p>HTML结构如下：</p>
+<pre class=" language-html"><code class="language-html"> <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>outer<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>inner<span class="token punctuation">"</span></span><span class="token style-attr language-css"><span class="token attr-name"> <span class="token attr-name">style</span></span><span class="token punctuation">="</span><span class="token attr-value"><span class="token property">float</span><span class="token punctuation">:</span>left<span class="token punctuation">;</span></span><span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+</code></pre>
+<p>基础样式如下：</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector"><span class="token class">.outer</span> </span><span class="token punctuation">{</span>
+  <span class="token property">width</span><span class="token punctuation">:</span> <span class="token number">500</span>px<span class="token punctuation">;</span>
+  <span class="token property">height</span><span class="token punctuation">:</span> <span class="token number">110</span>px<span class="token punctuation">;</span>
+  <span class="token property">border</span><span class="token punctuation">:</span> <span class="token number">1</span>px solid red<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector"><span class="token class">.inner</span> </span><span class="token punctuation">{</span>
+  <span class="token property">width</span><span class="token punctuation">:</span> <span class="token number">100</span>px<span class="token punctuation">;</span>
+  <span class="token property">height</span><span class="token punctuation">:</span> <span class="token number">100</span>px<span class="token punctuation">;</span>
+  <span class="token property">border</span><span class="token punctuation">:</span> <span class="token number">1</span>px solid black<span class="token punctuation">;</span>
+  <span class="token property">background-color</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>写完以后是这个样子的：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-c98a999a763f4aac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>现在开始改造吧！</p>
+<h3 id="实现垂直居中"><a href="#实现垂直居中" class="headerlink" title="实现垂直居中"></a>实现垂直居中</h3><p>看到垂直居中便首先想到了<code>vertical-algin:middle</code>(对这个属性不熟悉的同学可以打开传送门——<a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/vertical-align" target="_blank" rel="external">vertical-align - CSS | MDN</a>)。</p>
+<blockquote>
+<p>CSS的属性 <code>vertical-align</code> 用来指定行内元素（inline）或表格单元格（table-cell）元素的垂直对齐方式。</p>
+</blockquote>
+<p>注意是<strong>行内元素</strong>和<strong>表格单元格元素</strong>的垂直对齐方式。</p>
+<p>那么首先，我们须先将<code>.outer</code>的<code>display</code>设置为<code>table-cell</code>，并且增加<code>vertical-algin:middle</code>属性，代码如下：</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector"><span class="token class">.outer</span> </span><span class="token punctuation">{</span>
+  <span class="token property">width</span><span class="token punctuation">:</span> <span class="token number">500</span>px<span class="token punctuation">;</span>
+  <span class="token property">height</span><span class="token punctuation">:</span> <span class="token number">110</span>px<span class="token punctuation">;</span>
+  <span class="token property">border</span><span class="token punctuation">:</span> <span class="token number">1</span>px solid red<span class="token punctuation">;</span>
+  <span class="token property">display</span><span class="token punctuation">:</span> table-cell<span class="token punctuation">;</span>
+  <span class="token property">vertical-algin</span><span class="token punctuation">:</span> middle<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>结果如下：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-bd434af3f1b0d80d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="红色方块已经垂直居中了"></p>
+<p><em>题外话</em>：此方法也可用于多行文本垂直居中显示，参考<a href="http://www.zhangxinxu.com/study/200908/img-text-vertical-align.html#zhangxinxu" target="_blank" rel="external">大小不固定的图片和多行文字的垂直水平居中</a>。</p>
+<h3 id="实现水平居中"><a href="#实现水平居中" class="headerlink" title="实现水平居中"></a>实现水平居中</h3><p>水平居中的方式主要有<code>text-align:center</code>和<code>margin:auto</code>，前者用于行内元素居中，后者用于块级元素居中。当然还可以通过<code>positon</code>来定位使其居中的。</p>
+<p><strong>但是</strong>红色方块设置了<code>float</code>属性，所以它总是会居左或者居右，无法达到我们的要求。</p>
+<p>这个时候就要考虑使用定位了。给<code>.inner</code>添加<code>position:relative;left:50%;</code>效果如下：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-518d3f17211adac3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
+<p>现在使用负边距<code>margin-left:-51px</code>使其居中；另外还可以使用CSS3的<code>transform</code>使其居中。</p>
+<p>最终样式如下：</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector"><span class="token class">.outer</span> </span><span class="token punctuation">{</span>
+  <span class="token property">width</span><span class="token punctuation">:</span> <span class="token number">500</span>px<span class="token punctuation">;</span>
+  <span class="token property">height</span><span class="token punctuation">:</span> <span class="token number">110</span>px<span class="token punctuation">;</span>
+  <span class="token property">border</span><span class="token punctuation">:</span> <span class="token number">1</span>px solid red<span class="token punctuation">;</span>
+  <span class="token property">display</span><span class="token punctuation">:</span> table-cell<span class="token punctuation">;</span>
+  <span class="token property">vertical-algin</span><span class="token punctuation">:</span> middle<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector"><span class="token class">.inner</span> </span><span class="token punctuation">{</span>
+  <span class="token property">width</span><span class="token punctuation">:</span> <span class="token number">100</span>px<span class="token punctuation">;</span>
+  <span class="token property">height</span><span class="token punctuation">:</span> <span class="token number">100</span>px<span class="token punctuation">;</span>
+  <span class="token property">border</span><span class="token punctuation">:</span> <span class="token number">1</span>px solid black<span class="token punctuation">;</span>
+  <span class="token property">background-color</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span>
+  <span class="token property">position</span><span class="token punctuation">:</span> relative<span class="token punctuation">;</span>
+  <span class="token property">left</span><span class="token punctuation">:</span> <span class="token number">50%</span><span class="token punctuation">;</span>
+  <span class="token property">transform</span><span class="token punctuation">:</span> <span class="token function">translateX</span><span class="token punctuation">(</span>-<span class="token number">50%</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>其实一开始可以不必使用<code>table-cell</code>，垂直水平居中都使用定位来实现；<code>float</code>属性真是个恶魔。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

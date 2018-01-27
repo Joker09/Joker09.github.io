@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>什么时候需要清除浮动，清除浮动都有哪些方法 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>什么时候需要清除浮动，清除浮动都有哪些方法</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2016-11-21</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/CSS" title="Category：CSS">CSS</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/float/" title="Tag：float">float</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><h3 id="什么时候要清除浮动"><a href="#什么时候要清除浮动" class="headerlink" title="什么时候要清除浮动"></a>什么时候要清除浮动</h3><p>其实浮动<code>float</code>最开始出现的意义只是为了让文字环绕图片而已。但人们发现，如果想要几个块级元素并排显示，都给它们加个<code>float</code>来得会比较方便。但这样做也会带来问题……</p>
+<p><em>我们希望看到这样的效果：</em></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-a1c4556442d80437.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="希望看到的效果" title="希望看到的效果"></p>
+<p><em>但结果却是这样：</em></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-1932861637a7e6fb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="实际的效果" title="实际的效果"></p>
+<p>这个时候，我们就要清除浮动带来的影响——父元素高度塌陷了。</p>
+<p>这里引用张鑫旭大神<a href="http://www.zhangxinxu.com/wordpress/2010/01/css-float%E6%B5%AE%E5%8A%A8%E7%9A%84%E6%B7%B1%E5%85%A5%E7%A0%94%E7%A9%B6%E3%80%81%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%8B%93%E5%B1%95%E4%B8%80/" target="_blank" rel="external">观点</a>：</p>
+<blockquote>
+<p>撇开浮动的“破坏性”，浮动就是个带有方位的display:inline-block属性。</p>
+</blockquote>
+<p>一目了然：如果我们给上面的三个绿颜色的方块设置<code>display:inline-block</code>也能达到让它们并排显示的效果。并且父元素的高度也不会塌陷。只不过无法控制是居左还是居右，<code>display:inline-block</code>只能从左往右。</p>
+<hr>
+<h3 id="来看看我们如何清除浮动"><a href="#来看看我们如何清除浮动" class="headerlink" title="来看看我们如何清除浮动"></a>来看看我们如何清除浮动</h3><p>我们说的清除浮动是指清除<strong>由于子元素浮动带来父元素高度塌陷的影响</strong>。</p>
+<ol>
+<li><p>为父元素设置高度</p>
+<p>为父元素定高，简单粗暴，坏处不用多说吧，偶尔会这么用。</p>
+</li>
+<li><p>在父元素的最后设置<code>clear:both</code></p>
+<pre class=" language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>p<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>c<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>c<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>c<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token style-attr language-css"><span class="token attr-name"> <span class="token attr-name">style</span></span><span class="token punctuation">="</span><span class="token attr-value"><span class="token property">clear</span><span class="token punctuation">:</span>both<span class="token punctuation">;</span></span><span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span> <span class="token comment" spellcheck="true">&lt;!--不得不添加的多余的子元素--></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+</code></pre>
+<p>当添加了最后一个冗余元素（未设置<code>clear:both</code>）时；父元素和此冗余元素的高度都为<code>0</code>，并且三个浮动的元素都浮在了它们的上方盖住了它们（可以把它们看成PS中的图层）。</p>
+<p>现在，给这个冗余元素添加<code>clear:both</code><a href="http://www.w3school.com.cn/cssref/pr_class_clear.asp" target="_blank" rel="external">clear属性介绍</a>，它便要躲开这三个浮动元素，因此，一直往下跑，直到没有被浮动元素盖住才停下来。而父元素看到这个子元素跑开了，自然想要包裹住它。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-ef774355beee3821.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="加了`clear`后冗余元素由位置1跑到了位置2" title="加了`clear`后冗余元素由位置1跑到了位置2"></p>
+<p>这样就能看到我们想要的结果了——父元素高度被撑开了。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-eb600a7289505464.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="大功告成" title="大功告成"></p>
+<p>貌似不错，不过似乎有点问题——我们有必要在页面中添加这么多没有意义的冗余元素吗？显然这样太麻烦，而且不符合语义化。</p>
+<p>还好有<a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/Pseudo-elements" target="_blank" rel="external">伪元素</a>，这里我们使用<a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/::after" target="_blank" rel="external"><code>::after</code></a>。添加一个类<code>fix</code>：</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector"><span class="token class">.fix</span><span class="token pseudo-element">::after</span> </span><span class="token punctuation">{</span> 
+ <span class="token property">content</span><span class="token punctuation">:</span><span class="token string">"."</span><span class="token punctuation">;</span> 
+ <span class="token property">display</span><span class="token punctuation">:</span>block<span class="token punctuation">;</span> 
+ <span class="token property">height</span><span class="token punctuation">:</span><span class="token number">0</span><span class="token punctuation">;</span> 
+ <span class="token property">visibility</span><span class="token punctuation">:</span>hidden<span class="token punctuation">;</span> 
+ <span class="token property">clear</span><span class="token punctuation">:</span>both<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>在我们需要清除浮动时，只需要给父元素追加<code>fix</code>类就能达到清除浮动的效果，既方便又符合语义化。</p>
+<pre class=" language-html"><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>p fix<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>c<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>c<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>c<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+</code></pre>
+<p>当然，大神的<code>fix</code>类这么写：</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector"><span class="token class">.fix</span><span class="token pseudo-element">::after</span> </span><span class="token punctuation">{</span> 
+ <span class="token property">content</span><span class="token punctuation">:</span><span class="token string">""</span><span class="token punctuation">;</span> 
+ <span class="token property">display</span><span class="token punctuation">:</span>table<span class="token punctuation">;</span> 
+ <span class="token property">clear</span><span class="token punctuation">:</span>both<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>大师手笔，看起来更清爽了…</p>
+</li>
+<li><p>给父元素添加<code>overflow:hidden</code></p>
+<p>这里有必要了解一下<code>BFC</code><a href="https://www.w3.org/TR/CSS2/visuren.html#block-formatting" target="_blank" rel="external">块级格式化上下文</a>，只说结论：</p>
+<blockquote>
+<p>创建了 BFC的元素就是一个独立的盒子，不过只有Block-level box可以参与创建BFC， 它规定了内部的Block-level Box如何布局，并且与这个独立盒子里的布局不受外部影响，当然它也不会影响到外面的元素。它具有以下特征：</p>
+<ol>
+<li><p>内部的Box会在垂直方向，从顶部开始一个接一个地放置。</p>
+</li>
+<li><p>Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生叠加。</p>
+</li>
+<li><p>每个元素的margin box的左边， 与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此。</p>
+</li>
+<li><p>BFC的区域不会与float box叠加。</p>
+</li>
+<li><p>BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素，反之亦然。</p>
+</li>
+<li><p><strong>计算BFC的高度时，浮动元素也参与计算。</strong></p>
+</li>
+</ol>
+</blockquote>
+<p>看到第六条，如获至宝。只需给父元素创建块级格式化上下文，就可以让浮动的元素参与高度计算，这样一来，父元素的高度就有了。不单单只有给父元素添加<code>overflow:hidden</code>才可以创建块级格式化上下文，下列方法都可以：</p>
+<ul>
+<li><p>浮动 (元素的  <code>float</code>不为 <code>none</code>）</p>
+</li>
+<li><p>绝对定位元素 (元素的 <code>position</code> 为 <code>absolute</code> 或 <code>fixed</code>)</p>
+</li>
+<li><p>行内块 inline-blocks (元素的 <code>display: inline-block</code>)</p>
+</li>
+<li><p>表格单元格 (元素的 <code>display: table-cell</code>，HTML表格单元格默认属性)</p>
+</li>
+<li><p>表格标题 (元素的 <code>display: table-caption</code>，HTML表格标题默认属性)</p>
+</li>
+<li><p><code>overflow</code>的值不为 visible的元素</p>
+</li>
+<li><p>弹性盒子 flex boxes (元素的 <code>display: flex</code> 或 <code>inline-flex</code>)</p>
+</li>
+</ul>
+<p>用 <code>overflow:hidden</code> 较多的原因是不会带来其它的布局问题。</p>
+<p><em>题外话：</em>其实用块级上下文解释清除浮动个人感觉牵强，但也解释的过去哈。开拓下思维，看下知乎的问题<a href="https://www.zhihu.com/question/30938856" target="_blank" rel="external">CSS中为什么overflow:hidden能清除浮动(float)的影响？原理是什么？</a>，或许能找到你想要的。</p>
+</li>
+</ol>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

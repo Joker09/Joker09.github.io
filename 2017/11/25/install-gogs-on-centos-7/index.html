@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>在CentOS 7 下安装Gogs [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>在CentOS 7 下安装Gogs</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-11-25</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/杂" title="Category：杂">杂</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/git/" title="Tag：git">git</a><a href="/tags/gogs/" title="Tag：gogs">gogs</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p><a href="https://gogs.io/" target="_blank" rel="external">Gogs</a>是一款极易搭建的自助Git服务，本文主要介绍如何在CentOS 7下安装Gogs，并使用systemd守护后台进程。(以下命令均使用root账户操作)</p>
+<h2 id="安装Git"><a href="#安装Git" class="headerlink" title="安装Git"></a>安装Git</h2><p>需要在服务器上安装Git：</p>
+<pre class=" language-bash"><code class="language-bash">yum <span class="token function">install</span> <span class="token function">git</span> -y
+</code></pre>
+<h2 id="安装Gogs"><a href="#安装Gogs" class="headerlink" title="安装Gogs"></a>安装Gogs</h2><p>在服务器上添加一个新用户<code>git</code></p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">useradd</span> <span class="token function">git</span>
+</code></pre>
+<p>为<code>git</code>用户增加root权限：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">vi</span> /etc/sudoers
+</code></pre>
+<p>在如下地方增加一行</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">## ALlows root to run any commands anywhere</span>
+root ALL<span class="token operator">=</span><span class="token punctuation">(</span>ALL<span class="token punctuation">)</span> ALL
+<span class="token function">git</span> ALL<span class="token operator">=</span><span class="token punctuation">(</span>ALL<span class="token punctuation">)</span> ALL <span class="token comment" spellcheck="true">#新增</span>
+</code></pre>
+<p>切换到<code>git</code>用户家目录并下载Gogs：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">cd</span> /home/git
+<span class="token function">wget</span> https://dl.gogs.io/0.11.34/linux_amd64.tar.gz
+</code></pre>
+<p>需要下载不同版本可以查看<a href="https://gogs.io/docs/installation/install_from_binary" target="_blank" rel="external">这里</a></p>
+<p>解压下载好的二进制文件：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">tar</span> -xvf linux_amd64.tar.gz
+</code></pre>
+<h2 id="配置自启动"><a href="#配置自启动" class="headerlink" title="配置自启动"></a>配置自启动</h2><p>新建启动脚本文件<code>/etc/systemd/system/gogs.service</code>，内容如下：(参考<a href="https://github.com/gogits/gogs/blob/master/scripts/systemd/gogs.service" target="_blank" rel="external">这里</a>)</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token punctuation">[</span>Unit<span class="token punctuation">]</span>
+Description<span class="token operator">=</span>Gogs
+After<span class="token operator">=</span>syslog.target
+After<span class="token operator">=</span>network.target
+<span class="token comment" spellcheck="true"># After=mariadb.service mysqld.service postgresql.service memcached.service redis.service</span>
+
+<span class="token punctuation">[</span>Service<span class="token punctuation">]</span>
+<span class="token comment" spellcheck="true"># Modify these two values and uncomment them if you have</span>
+<span class="token comment" spellcheck="true"># repos with lots of files and get an HTTP error 500 because</span>
+<span class="token comment" spellcheck="true"># of that</span>
+<span class="token comment" spellcheck="true">###</span>
+<span class="token comment" spellcheck="true">#LimitMEMLOCK=infinity</span>
+<span class="token comment" spellcheck="true">#LimitNOFILE=65535</span>
+Type<span class="token operator">=</span>simple
+User<span class="token operator">=</span>git
+Group<span class="token operator">=</span>git
+WorkingDirectory<span class="token operator">=</span>/home/git/gogs
+ExecStart<span class="token operator">=</span>/home/git/gogs/gogs web
+Restart<span class="token operator">=</span>always
+Environment<span class="token operator">=</span>USER<span class="token operator">=</span>git HOME<span class="token operator">=</span>/home/git
+
+<span class="token punctuation">[</span>Install<span class="token punctuation">]</span>
+WantedBy<span class="token operator">=</span>multi-user.target
+</code></pre>
+<p>执行以下命令启动 gogs 服务：</p>
+<pre class=" language-bash"><code class="language-bash">systemctl <span class="token function">enable</span> gogs
+systemctl start gogs
+</code></pre>
+<p>为了检查 gogs 服务是否已成功启动，可以执行以下命令查看服务的状态：</p>
+<pre class=" language-bash"><code class="language-bash">systemctl status gogs -l
+</code></pre>
+<h2 id="开启端口号"><a href="#开启端口号" class="headerlink" title="开启端口号"></a>开启端口号</h2><p>gogs默认端口号是3000：</p>
+<pre class=" language-bash"><code class="language-bash">firewall-cmd --zone<span class="token operator">=</span>public --add-port<span class="token operator">=</span>3000/tcp --permanent
+firewall-cmd --reload
+</code></pre>
+<p>打开浏览器输入<code>http://服务器ip:3000</code> 应该会提示你安装，数据库那一栏选择sqlLite，域名根据实际情况填写即可。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

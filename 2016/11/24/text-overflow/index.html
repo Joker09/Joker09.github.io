@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>CSS处理文本溢出 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>CSS处理文本溢出</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2016-11-24</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/CSS" title="Category：CSS">CSS</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/文本溢出/" title="Tag：文本溢出">文本溢出</a><a href="/tags/ellipsis/" title="Tag：ellipsis">ellipsis</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p>先看效果图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-f457d2f72f7b65af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
+<p>这种处理文本溢出分为1和2两种情形（单行和多行。</p>
+<h2 id="单行文本溢出（情形1）"><a href="#单行文本溢出（情形1）" class="headerlink" title="单行文本溢出（情形1）"></a>单行文本溢出（情形1）</h2><p>要是单行文本溢出时已省略号显示比较简单，几个关键词：<em>定宽</em>、<em>overflow:hidden</em>、<em>text-overflow:ellipsis</em>、<em>强制不换行</em>。</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector">p </span><span class="token punctuation">{</span>
+    <span class="token property">width</span><span class="token punctuation">:</span> <span class="token number">200</span>px<span class="token punctuation">;</span>
+    <span class="token property">overflow</span><span class="token punctuation">:</span> hidden<span class="token punctuation">;</span>
+    <span class="token property">text-overflow</span><span class="token punctuation">:</span> ellipsis<span class="token punctuation">;</span>
+    <span class="token property">white-space</span><span class="token punctuation">:</span> nowarp<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="多行文本最后一行溢出（指定行数，情形2）"><a href="#多行文本最后一行溢出（指定行数，情形2）" class="headerlink" title="多行文本最后一行溢出（指定行数，情形2）"></a>多行文本最后一行溢出（指定行数，情形2）</h2><p>直接F12发现了几个私有属性：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-4046b2abf2ecc779.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
+<p><code>display:-webkit-box</code> 、 <code>-webkit-box-orient:vertical</code> 、 <code>-webkit-line-clamp:2</code>；不难看出其中 <code>-webkit-line-clamp:2</code> 指的就是显示2行后才开始隐藏多余的文本。</p>
+<p>查看<a href="http://caniuse.com/#search=webkit" target="_blank" rel="external">caniuse</a>有如下介绍：</p>
+<blockquote>
+<p><em>Proprietary and undocumented CSS property that will contain text to a given amount of lines when used in combination with <code>display: -webkit-box</code>. It will end with ellipsis when <code>text-overflow: ellipsis</code> is included.</em></p>
+</blockquote>
+<p>要和 <code>display: -webkit-box</code> 搭配使用。并且使用了 <code>text-overflow: ellipsis</code> 句子末尾将会以省略号结尾。<br>看下兼容性：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2732019-001f039c6c2665d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Paste_Image.png"></p>
+<p> <strong>+++++++++update++++++++++</strong></p>
+<p>看到了另外一种兼容的处理方式：</p>
+<p>文本块定高，高度是行高的2倍（想显示几行是几倍，比如 <code>line-height</code> 为 <code>1.4rem</code>，则 <code>height</code> 为2.8rem），然后相对定位。再利用伪元素绝对定位到末尾并添加背景色，done!</p>
+<pre class=" language-css"><code class="language-css"><span class="token selector">p </span><span class="token punctuation">{</span>
+ <span class="token property">position</span><span class="token punctuation">:</span>relative<span class="token punctuation">;</span>
+ <span class="token property">line-height</span><span class="token punctuation">:</span><span class="token number">1.4</span>em<span class="token punctuation">;</span>
+ <span class="token comment" spellcheck="true">/* 3 times the line-height to show 3 lines */</span>
+ <span class="token property">height</span><span class="token punctuation">:</span><span class="token number">4.2</span>em<span class="token punctuation">;</span>
+ <span class="token property">overflow</span><span class="token punctuation">:</span>hidden<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token selector">p<span class="token pseudo-element">::after</span> </span><span class="token punctuation">{</span>
+ <span class="token property">content</span><span class="token punctuation">:</span><span class="token string">"..."</span><span class="token punctuation">;</span>
+ <span class="token property">font-weight</span><span class="token punctuation">:</span>bold<span class="token punctuation">;</span>
+ <span class="token property">position</span><span class="token punctuation">:</span>absolute<span class="token punctuation">;</span>
+ <span class="token property">bottom</span><span class="token punctuation">:</span><span class="token number">0</span><span class="token punctuation">;</span>
+ <span class="token property">right</span><span class="token punctuation">:</span><span class="token number">0</span><span class="token punctuation">;</span>
+ <span class="token property">padding</span><span class="token punctuation">:</span><span class="token number">0</span> <span class="token number">20</span>px <span class="token number">1</span>px <span class="token number">45</span>px<span class="token punctuation">;</span>
+ <span class="token property">background</span><span class="token punctuation">:</span><span class="token url">url(http://css88.b0.upaiyun.com/css88/2014/09/ellipsis_bg.png)</span> repeat-y<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>以上。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>Ajax学习笔记 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>Ajax学习笔记</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-01-17</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/JavaScript" title="Category：JavaScript">JavaScript</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/XMLHttpRequest/" title="Tag：XMLHttpRequest">XMLHttpRequest</a><a href="/tags/Ajax/" title="Tag：Ajax">Ajax</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><blockquote>
+<p>Ajax的核心是XMLHttpRequest对象，它是Ajax的关键——发送异步请求、接受响应及执行回调函数都是通过它来完成的。</p>
+</blockquote>
+<h2 id="第一个Ajax例子"><a href="#第一个Ajax例子" class="headerlink" title="第一个Ajax例子"></a>第一个Ajax例子</h2><ol>
+<li><p>前台HTML代码如下：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token operator">&lt;</span>input type<span class="token operator">=</span><span class="token string">"button"</span> value<span class="token operator">=</span><span class="token string">"Ajax提交"</span> onclick<span class="token operator">=</span><span class="token string">"Ajax();"</span> <span class="token operator">/</span><span class="token operator">></span>
+<span class="token operator">&lt;</span>div <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"resText"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">></span>
+</code></pre>
+</li>
+<li><p>定义一个函数，通过该函数来异步获取信息：代码如下：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">Ajax</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+ <span class="token comment" spellcheck="true">//....  </span>
+<span class="token punctuation">}</span>
+</code></pre>
+</li>
+<li><p>实例化XMLHttpRequest对象，代码如下：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">var</span> xhr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">XMLhttpRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+</li>
+<li><p>实例化成功后，用<code>open()</code>方法初始化<code>xhr</code>对象，制定HTTP方法和要使用的服务器URL，代码如下：</p>
+<pre class=" language-javascript"><code class="language-javascript">xhr<span class="token punctuation">.</span><span class="token function">open</span><span class="token punctuation">(</span><span class="token string">'GET'</span><span class="token punctuation">,</span> <span class="token string">'test.php'</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//调用open()方法并采用异步方式</span>
+</code></pre>
+<p>默认情况下，使用XMLHttpRquest对象发送的HTTP请求是异步进行的，但是可以显示地把async参数设置为true，如上面代码所示。</p>
+</li>
+<li><p>因为要做一个异步调用，当<code>xhr</code>对象的<code>readySatet</code>值改变时，会激发一个<code>readystatechange</code>事件，可以使用<code>onreadystatechange</code>来注册该回调事件处理器。代码如下：</p>
+<pre class=" language-javascript"><code class="language-javascript">xhr<span class="token punctuation">.</span>onreadystatechange <span class="token operator">=</span> callback<span class="token punctuation">;</span><span class="token comment" spellcheck="true">//设置回调函数</span>
+</code></pre>
+</li>
+<li><p>使用<code>send()</code>方法发送该请求，因为这个请求是HTTP的<code>GET</code>方式，所以可以在不指定参数或使用null参数的情况下调用<code>send()</code>方法，代码如下：</p>
+<pre class=" language-javascript"><code class="language-javascript">xhr<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+</li>
+</ol>
+<p>当请求状态改变时，xhr对象调用<code>onreadystatechange</code>属性注册的事件处理器。因此，在响应之前，时间处理器<code>callback</code>应先检查<code>readyState</code>的值和HTTP的状态。当请求完成加载(<code>readyState</code>的值为4)并且响应已经成功(HTTP的状态值为200)，就可以调用一个JavaScript函数来处理该响应内容，代码如下：</p>
+<pre class=" language-javascript"><code class="language-javascript"><span class="token keyword">function</span> callback <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span> xhr<span class="token punctuation">.</span>readyState <span class="token operator">===</span><span class="token number">4</span> <span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span> xht<span class="token punctuation">.</span>status <span class="token operator">===</span> <span class="token number">200</span> <span class="token punctuation">)</span><span class="token punctuation">{</span>
+           <span class="token comment" spellcheck="true">//将xhr.responseText的值赋给id为resText的元素</span>
+           document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'resText'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>innerHTML <span class="token operator">=</span> xhr<span class="token punctuation">.</span>responseText<span class="token punctuation">;</span> 
+       <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>最后，点击单击网页的Ajax提交，网页上显示服务端响应的结果，Ajax调用完成。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

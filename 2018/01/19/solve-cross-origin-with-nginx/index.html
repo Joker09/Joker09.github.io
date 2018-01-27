@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>Nginx反向代理决解前端开发时的跨域问题 [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>Nginx反向代理决解前端开发时的跨域问题</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2018-01-19</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/杂" title="Category：杂">杂</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/Nginx/" title="Tag：Nginx">Nginx</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><p>在开发时，因为跨域的问题，无法直接使用后端提供的接口。有以下三种方式决解方案：</p>
+<ul>
+<li>jsonp</li>
+<li>CORS</li>
+<li>Nginx反向代理</li>
+</ul>
+<p>jsonp只能处理get请求。</p>
+<p>CORS和Nginx反向代理都是我认为比较好的处理方案。</p>
+<p>本文主要说说如何用Nginx代理来决解前端开发会遇到的跨域问题。(开发环境为win10)</p>
+<h2 id="安装Nginx"><a href="#安装Nginx" class="headerlink" title="安装Nginx"></a>安装Nginx</h2><p><a href="https://nginx.org/en/download.html" target="_blank" rel="external">官网</a>下载Nginx并解压到任意目录(比如: <code>c:/path/to/nginx</code>)，打开powershell运行：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 进入nginx安装目录</span>
+<span class="token function">cd</span> c:/path/to/nginx
+
+<span class="token comment" spellcheck="true"># 启动nginx</span>
+start nginx
+</code></pre>
+<p>浏览器输入localhost看到nginx欢迎界面，说明启动成功。</p>
+<h2 id="配置nginx-conf"><a href="#配置nginx-conf" class="headerlink" title="配置nginx.conf"></a>配置nginx.conf</h2><p>假设本地开发服务器为<code>localhost:8080</code></p>
+<p>后端提供接口的结构为<code>http://domin.com/api/user/:id</code></p>
+<p>我们使用Nginx监听80端口，配置如下：</p>
+<pre class=" language-cfg"><code class="language-cfg"> server {
+        listen       80;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+
+        location / {
+          proxy_pass http://127.0.0.1:8080;
+        }
+
+        location  ^~ /api {
+          proxy_pass http://domin.com/api;
+        }
+</code></pre>
+<p>关于localtion的匹配规则可以看这里：<a href="https://segmentfault.com/a/1190000002797606" target="_blank" rel="external">nginx配置location总结及rewrite规则写法</a></p>
+<p>保存配置文件，在powershell中重启一下Nginx：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 进入nginx安装目录</span>
+<span class="token function">cd</span> c:/path/to/nginx
+
+<span class="token comment" spellcheck="true"># 重新加载nginx</span>
+nginx -s reload
+</code></pre>
+<p>接下来分别请求<code>localhost</code>和<code>localhost/api/user/1</code>，应该可以看到项目首页和后台接口返回的数据了。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"><title>在 CentOS 7 下安装配置 shadowsocks [ kkk的个人博客 ]</title><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"><script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/prism-okaidia.css" type="text/css"></head><body><header id="top"><div class="wrapper"><a class="brand" href="/">kkk</a><small>Front-end Dev Engineer</small><button class="menu" id="headerMenu"><span class="fa fa-bars"></span></button><nav id="headerNav"><ul><li><a href="/"><span class="fa fa-home"></span>Home</a></li><li><a href="/archives"><span class="fa fa-archive"></span>Archives</a></li><li><a href="/about"><span class="fa fa-heart"></span>About</a></li></ul></nav></div></header><div class="page clearfix" post><div class="left"><h1>在 CentOS 7 下安装配置 shadowsocks</h1><div class="label"><div class="label-card"><span class="fa fa-calendar"></span>2017-11-24</div><div class="label-card"><span class="fa fa-user"></span>kkk</div><div class="label-card"><span class="categories"><span class="fa fa-th-list"></span><a href="/categories/杂" title="Category：杂">杂</a></span></div><div class="label-card"><span class="tags"><span class="fa fa-tags"></span><a href="/tags/shadowsocks/" title="Tag：shadowsocks">shadowsocks</a></span></div></div><hr><article itemscope itemtype="http://schema.org/BlogPosting"><blockquote>
+<p>本文转载自<a href="http://morning.work/page/2015-12/install-shadowsocks-on-centos-7.html" target="_blank" rel="external">在 CentOS 7 下安装配置 shadowsocks</a></p>
+</blockquote>
+<p>CentOS 7 开始默认使用 Systemd 作为开启启动脚本的管理工具，<a href="https://github.com/shadowsocks/" target="_blank" rel="external">Shadowsocks</a>则是当前比较受欢迎的科学上网工具，本文将介绍如何在 CentOS 下安装和配置 Shadowsocks 服务。</p>
+<h2 id="安装-pip"><a href="#安装-pip" class="headerlink" title="安装 pip"></a>安装 pip</h2><p>pip 是 python 的包管理工具。在本文中将使用 python 版本的 shadowsocks，此版本的 shadowsocks 已发布到 pip 上，因此我们需要通过 pip 命令来安装。</p>
+<p>在控制台执行以下命令安装 pip：</p>
+<pre class=" language-bash"><code class="language-bash">curl <span class="token string">"https://bootstrap.pypa.io/get-pip.py"</span> -o <span class="token string">"get-pip.py"</span>
+python get-pip.py
+</code></pre>
+<h2 id="安装配置-shadowsocks"><a href="#安装配置-shadowsocks" class="headerlink" title="安装配置 shadowsocks"></a>安装配置 shadowsocks</h2><p>在控制台执行以下命令安装 shadowsocks：</p>
+<pre class=" language-bash"><code class="language-bash">pip <span class="token function">install</span> --upgrade pip
+pip <span class="token function">install</span> shadowsocks
+</code></pre>
+<p>安装完成后，需要创建配置文件/etc/shadowsocks.json，内容如下：</p>
+<pre class=" language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"server"</span><span class="token operator">:</span> <span class="token string">"0.0.0.0"</span><span class="token punctuation">,</span>
+  <span class="token property">"server_port"</span><span class="token operator">:</span> <span class="token number">8388</span><span class="token punctuation">,</span>
+  <span class="token property">"password"</span><span class="token operator">:</span> <span class="token string">"uzon57jd0v869t7w"</span><span class="token punctuation">,</span>
+  <span class="token property">"method"</span><span class="token operator">:</span> <span class="token string">"aes-256-cfb"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>说明:</p>
+<ul>
+<li><p><code>method</code>为加密方法，可选<code>aes-128-cfb</code>, <code>aes-192-cfb</code>, <code>aes-256-cfb</code>, <code>bf-cfb</code>, <code>cast5-cfb</code>, <code>des-cfb</code>, <code>rc4-md5</code>, <code>chacha20</code>, <code>salsa20</code>, <code>rc4</code>, <code>table</code></p>
+</li>
+<li><p><code>server_port</code>为服务监听端口(可能需要开启服务器端口)</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 开启8388端口号</span>
+firewall-cmd --zone<span class="token operator">=</span>public --add-port<span class="token operator">=</span>8388/tcp --permanent
+firewall-cmd --reload
+</code></pre>
+</li>
+<li><p><code>password</code>为密码，可使用<a href="http://ucdok.com/project/generate_password.html" target="_blank" rel="external">密码生成工具</a>生成一个随机密码</p>
+</li>
+</ul>
+<p>以上三项信息在配置 shadowsocks 客户端时需要配置一致，具体说明可查看 shadowsocks 的帮助文档。</p>
+<h2 id="配置自启动"><a href="#配置自启动" class="headerlink" title="配置自启动"></a>配置自启动</h2><p>新建启动脚本文件<code>/etc/systemd/system/shadowsocks.service</code>，内容如下：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token punctuation">[</span>Unit<span class="token punctuation">]</span>
+Description<span class="token operator">=</span>Shadowsocks
+
+<span class="token punctuation">[</span>Service<span class="token punctuation">]</span>
+TimeoutStartSec<span class="token operator">=</span>0
+ExecStart<span class="token operator">=</span>/usr/bin/ssserver -c /etc/shadowsocks.json
+
+<span class="token punctuation">[</span>Install<span class="token punctuation">]</span>
+WantedBy<span class="token operator">=</span>multi-user.target
+</code></pre>
+<p>执行以下命令启动 shadowsocks 服务：</p>
+<pre class=" language-bash"><code class="language-bash">systemctl <span class="token function">enable</span> shadowsocks
+systemctl start shadowsocks
+</code></pre>
+<p>为了检查 shadowsocks 服务是否已成功启动，可以执行以下命令查看服务的状态：</p>
+<pre class=" language-bash"><code class="language-bash">systemctl status shadowsocks -l
+</code></pre>
+<p>如果服务启动成功，则控制台显示的信息可能类似这样：</p>
+<pre class=" language-bash"><code class="language-bash">● shadowsocks.service - Shadowsocks
+   Loaded: loaded <span class="token punctuation">(</span>/etc/systemd/system/shadowsocks.service<span class="token punctuation">;</span> enabled<span class="token punctuation">;</span> vendor preset: disabled<span class="token punctuation">)</span>
+   Active: active <span class="token punctuation">(</span>running<span class="token punctuation">)</span> since Mon 2015-12-21 23:51:48 CST<span class="token punctuation">;</span> 11min ago
+ Main PID: 19334 <span class="token punctuation">(</span>ssserver<span class="token punctuation">)</span>
+   CGroup: /system.slice/shadowsocks.service
+           └─19334 /usr/bin/python /usr/bin/ssserver -c /etc/shadowsocks.json
+
+Dec 21 23:51:48 morning.work systemd<span class="token punctuation">[</span>1<span class="token punctuation">]</span>: Started Shadowsocks.
+Dec 21 23:51:48 morning.work systemd<span class="token punctuation">[</span>1<span class="token punctuation">]</span>: Starting Shadowsocks<span class="token punctuation">..</span>.
+Dec 21 23:51:48 morning.work ssserver<span class="token punctuation">[</span>19334<span class="token punctuation">]</span>: INFO: loading config from /etc/shadowsocks.json
+Dec 21 23:51:48 morning.work ssserver<span class="token punctuation">[</span>19334<span class="token punctuation">]</span>: 2015-12-21 23:51:48 INFO     loading libcrypto from libcrypto.so.10
+Dec 21 23:51:48 morning.work ssserver<span class="token punctuation">[</span>19334<span class="token punctuation">]</span>: 2015-12-21 23:51:48 INFO     starting server at 0.0.0.0:8388
+</code></pre>
+<h2 id="开启-BBR-加速"><a href="#开启-BBR-加速" class="headerlink" title="开启 BBR 加速"></a>开启 BBR 加速</h2><p>使用 root 身份登录 VPS，输入下面的命令自动安装 BBR：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">wget</span> –no-check-certificate https://github.com/teddysun/across/raw/master/bbr.sh
+<span class="token function">chmod</span> +x bbr.sh
+./bbr.sh
+</code></pre>
+<p>安装完成后重启一次服务器。</p>
+</article><hr><h2>Comment</h2><div id="comments"></div><script>var gitment = new Gitment({"owner":"kkkisme","repo":"kkkisme.github.io","oauth":{"client_id":"db9579a094af635f2b6b","client_secret":"30d4b33b29c44d60d31c38195d036491a8e70124"}})
+gitment.render('comments')</script></div><div class="right"></div></div><footer class="site-footer"><div class="wrapper"><p class="description">本站记录我前端之旅的沿途风景！</p><p class="contact">Contact me at:<a href="https://github.com/kkkisme" title="Github"><span class="fa fa-github" aria-hidden="true"></span></a><a href="mailto:9309mh@gmail.com" title="email"><span class="fa fa-envelope-o" aria-hidden="true"></span></a></p><p>本站总访问量<span id="busuanzi_value_site_pv"> </span>次，本站访客数<span id="busuanzi_value_site_uv"> </span>人次，本文总阅读量<span id='busuanzi_value_page_pv'><span>次</p><p class="power"><span>Site powered by<a href="https://hexo.io/">  Hexo</a> &amp;<a href="https://pages.github.com/">  Github Pages.</a></span><span> Theme design by<a href="https://github.com/Gaohaoyang">  HyG</a></span></p></div></footer><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="back-to-top"><i class="fa fa-arrow-up"></i></div><script src="/js/hyg.js"></script></body></html>
